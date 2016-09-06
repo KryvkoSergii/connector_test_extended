@@ -30,11 +30,22 @@ public class ExecutorThread implements Runnable {
         this.clientSocket = clientSocket;
         this.connectionInitiatingScenario = connectionInitiatingScenario;
         scriptExecutingStateHolder = new ClientDescriptor();
-        logger = Logger.getLogger("ExecutorThread-"+clientSocket.getPort());
+        logger = Logger.getLogger("ExecutorThread-" + clientSocket.getPort());
         logger.setLevel(Level.INFO);
-        logger.log(Level.INFO,clientSocket.getRemoteSocketAddress()+" accepted");
+        logger.log(Level.INFO, clientSocket.getRemoteSocketAddress() + " accepted");
     }
 
+
+    //getters and setters
+    public boolean isConnectionEstablished() {
+        return isConnectionEstablished;
+    }
+
+    public void setConnectionEstablished(boolean connectionEstablished) {
+        isConnectionEstablished = connectionEstablished;
+    }
+
+    
     @Override
     public void run() {
         logger.log(Level.INFO, String.format("Execution started..."));
@@ -45,7 +56,7 @@ public class ExecutorThread implements Runnable {
         Queue<byte[]> outputMessages = stack.getOutputMessages();
         stack.start();
 
-        logger.log(Level.INFO,"Creating TransportStack ".concat(Long.toString(System.currentTimeMillis()-initTime)).concat(" ms"));
+        logger.log(Level.INFO, "Creating TransportStack ".concat(Long.toString(System.currentTimeMillis() - initTime)).concat(" ms"));
 
         while (!isConnectionEstablished) {
             //разделитель сообщений
@@ -85,11 +96,9 @@ public class ExecutorThread implements Runnable {
 
             //
             logger.log(Level.INFO, String.format("State: %s , command type: %s", Arrays.toString(scriptExecutingStateHolder.getClientState()), spc.getMethod()));
-            ScriptExecutorHolder.execute(spc,inputMessages,outputMessages,scriptExecutingStateHolder,logger);
+            ScriptExecutorHolder.execute(spc, inputMessages, outputMessages, scriptExecutingStateHolder, logger);
         }
-
         //запуск клиента
-
     }
 
     private ScenarioPairContainer getCommand(Map<String, Object> scenario, String[] state, int level) {

@@ -94,8 +94,6 @@ public class TransportStack extends Thread {
         toClient.write(message);
         toClient.flush();
         s.setSoLinger(true, 0);
-
-//        logger.log(Level.INFO, "MESSAGE SENT");
     }
 
     private static long convertByteArraySize4ToLong(byte[] variable) {
@@ -163,11 +161,6 @@ public class TransportStack extends Thread {
                     write(clientSocket, outputMessage);
                     logger.log(Level.INFO, String.format("WROTE MESSAGE TO NET: " + Hex.encodeHexString(outputMessage)));
                     writeCount++;
-//                    try {
-//                        Thread.currentThread().sleep(500);
-//                    } catch (InterruptedException e) {
-//                        return;
-//                    }
                 }
 
             } catch (IOException e) {

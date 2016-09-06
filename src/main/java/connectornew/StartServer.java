@@ -1,5 +1,6 @@
 package connectornew;
 
+import connectornew.connector.ClientsExecutor;
 import connectornew.connector.ExecutorThread;
 import org.xml.sax.SAXException;
 
@@ -80,16 +81,15 @@ public class StartServer {
 
                 ExecutorThread connectionInitiator = new ExecutorThread(s, initiateConnectionScenario);
                 executorService.execute(connectionInitiator);
+//
+//                ClientsExecutor clientsExecutor = new ClientsExecutor(s, agentsScenario, agentList);
+//                executorService.execute(clientsExecutor);
+
             }
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.getMessage());
         }
     }
-
-//    private void createExecutorsPool(int initSize) {
-//        for (int i = 0; i < initSize; i++) threadsPool.add(new ExecutorThread());
-//        logger.log(Level.INFO, String.format("created %s threads", threadsPool.size()));
-//    }
 
     private void loadInitiateConnectionScenario(String scenarioFilePath) {
         long initTime = System.currentTimeMillis();
@@ -104,7 +104,6 @@ public class StartServer {
         this.agentsScenario = loadScenario(scenarioFilePath);
         logger.log(Level.INFO, String.format("Script preparing time: %s ms", System.currentTimeMillis() - initTime));
     }
-
 
     private Map<String, Object> loadScenario(String scenarioFilePath) {
         Map<String, Object> tmp = null;
