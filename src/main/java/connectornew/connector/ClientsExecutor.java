@@ -2,8 +2,12 @@ package connectornew.connector;
 
 import connectornew.ClientDescriptor;
 import connectornew.TransportStack;
+import connectornew.messages.CTI;
+import connectornew.messages.Header;
+import connectornew.messages.SetAgentStateReq;
+import org.apache.commons.codec.binary.Hex;
 
-import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Queue;
 
@@ -12,7 +16,7 @@ import java.util.Queue;
  */
 public class ClientsExecutor implements Runnable {
 
-    Socket clientSocket;
+    TransportStack stack;
     Map<String, Object> agentsScenario;
     Map<String, ClientDescriptor> agentList;
 
@@ -21,20 +25,31 @@ public class ClientsExecutor implements Runnable {
     public ClientsExecutor() {
     }
 
-    public ClientsExecutor(Socket clientSocket, Map<String, Object> agentsScenario, Map<String, ClientDescriptor> agentList) {
-        this.clientSocket = clientSocket;
+    public ClientsExecutor(TransportStack stack, Map<String, Object> agentsScenario, Map<String, ClientDescriptor> agentList) {
+        this.stack = stack;
         this.agentsScenario = agentsScenario;
         this.agentList = agentList;
     }
 
     @Override
     public void run() {
-
-        TransportStack stack = new TransportStack(clientSocket);
         Queue<byte[]> inputMessages = stack.getInputMessages();
         Queue<byte[]> outputMessages = stack.getOutputMessages();
-        stack.start();
+        System.out.println("IN CLIENT");
+        while (!Thread.currentThread().isInterrupted()) {
+            byte[] message = inputMessages.peek();
+            if (message==null) continue;
+            switch (Header.parseMessageType(message)) {
+                case CTI.MSG_SET_AGENT_STATE_REQ: {
+                    SetAgentStateReq agentStateReq = SetAgentStateReq.deserializeMessage(message);
+                    System.out.println(agentStateReq);
+                }
+                default: {
+                    System.out.println("REMOVE " + Hex.encodeHexString(inputMessages.remove()));
+                }
+            }
 
+        }
 
     }
 }

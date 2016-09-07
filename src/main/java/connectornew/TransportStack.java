@@ -129,6 +129,14 @@ public class TransportStack extends Thread {
         return writeCount;
     }
 
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
+
+    public void setClientSocket(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
     @Override
     public void run() {
         logger.log(Level.INFO, "Start transport stack thread");

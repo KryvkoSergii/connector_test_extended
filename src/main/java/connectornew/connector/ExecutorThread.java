@@ -3,12 +3,8 @@ package connectornew.connector;
 import connectornew.ClientDescriptor;
 import connectornew.ScenarioPairContainer;
 import connectornew.TransportStack;
-import connectornew.VariablesDescriptor;
-import org.apache.commons.codec.binary.Hex;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,20 +15,18 @@ import java.util.logging.Logger;
 public class ExecutorThread implements Runnable {
     private Logger logger;
     private boolean isConnectionEstablished = false;
-
-    //
-    private Socket clientSocket;
+    private TransportStack stack;
     private Map<String, Object> connectionInitiatingScenario;
     private ClientDescriptor scriptExecutingStateHolder;
 
     //Constructors
-    public ExecutorThread(Socket clientSocket, Map<String, Object> connectionInitiatingScenario) {
-        this.clientSocket = clientSocket;
+    public ExecutorThread(TransportStack stack, Map<String, Object> connectionInitiatingScenario) {
+        this.stack = stack;
         this.connectionInitiatingScenario = connectionInitiatingScenario;
         scriptExecutingStateHolder = new ClientDescriptor();
-        logger = Logger.getLogger("ExecutorThread-" + clientSocket.getPort());
+        logger = Logger.getLogger("ExecutorThread-" + stack.getClientSocket().getPort());
         logger.setLevel(Level.INFO);
-        logger.log(Level.INFO, clientSocket.getRemoteSocketAddress() + " accepted");
+        logger.log(Level.INFO, stack.getClientSocket().getRemoteSocketAddress() + " accepted");
     }
 
 
@@ -45,20 +39,17 @@ public class ExecutorThread implements Runnable {
         isConnectionEstablished = connectionEstablished;
     }
 
-    
+
     @Override
     public void run() {
         logger.log(Level.INFO, String.format("Execution started..."));
         long initTime = System.currentTimeMillis();
         //Создание транспортного стека
-        TransportStack stack = new TransportStack(clientSocket);
         Queue<byte[]> inputMessages = stack.getInputMessages();
         Queue<byte[]> outputMessages = stack.getOutputMessages();
         stack.start();
-
         logger.log(Level.INFO, "Creating TransportStack ".concat(Long.toString(System.currentTimeMillis() - initTime)).concat(" ms"));
-
-        while (!isConnectionEstablished) {
+        while (!isConnectionEstablished | !Thread.currentThread().isInterrupted()) {
             //разделитель сообщений
             if (logger.getLevel().intValue() >= Level.INFO.intValue()) System.out.println("");
 
@@ -70,26 +61,7 @@ public class ExecutorThread implements Runnable {
             if (spc == null) {
                 logger.log(Level.INFO, "ConnectionInitiateScenario executed");
                 logger.log(Level.INFO, String.format("Executing time: %s ms", System.currentTimeMillis() - initTime));
-
-                //ожидаем отправки всех сообщений
-                while (outputMessages.size() > 0) {
-                    try {
-                        Thread.currentThread().sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
                 logger.log(Level.INFO, String.format("Done read cycles %s, write cycles %s", stack.getReadCount(), stack.getWriteCount()));
-
-                /**
-                 * на stack не отправлена команда interrupt
-                 */
-                try {
-                    stack.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 isConnectionEstablished = true;
                 break;
             }
@@ -99,6 +71,7 @@ public class ExecutorThread implements Runnable {
             ScriptExecutorHolder.execute(spc, inputMessages, outputMessages, scriptExecutingStateHolder, logger);
         }
         //запуск клиента
+        logger.log(Level.INFO, "CONNECTION ESTABLISHED");
     }
 
     private ScenarioPairContainer getCommand(Map<String, Object> scenario, String[] state, int level) {

@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -74,16 +75,23 @@ public class StartServer {
         try {
             ServerSocket ss = new ServerSocket(42027);
             ExecutorService executorService = Executors.newCachedThreadPool();
+            TransportStack stack;
             while (!isStopped) {
                 logger.log(Level.INFO, "Waiting...");
                 Socket s = ss.accept();
                 s.setSendBufferSize(4096);
-
-                ExecutorThread connectionInitiator = new ExecutorThread(s, initiateConnectionScenario);
+                stack = new TransportStack(s);
+                ExecutorThread connectionInitiator = new ExecutorThread(stack, initiateConnectionScenario);
                 executorService.execute(connectionInitiator);
-//
-//                ClientsExecutor clientsExecutor = new ClientsExecutor(s, agentsScenario, agentList);
-//                executorService.execute(clientsExecutor);
+                while(!connectionInitiator.isConnectionEstablished()){
+                    try {
+                        Thread.currentThread().sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                    System.out.println("SLEEPING");
+                }
+                ClientsExecutor clientsExecutor = new ClientsExecutor(stack, agentsScenario, agentList);
+                executorService.execute(clientsExecutor);
 
             }
         } catch (IOException e) {
