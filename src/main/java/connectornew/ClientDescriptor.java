@@ -1,5 +1,6 @@
 package connectornew;
 
+import connectornew.messages.AgentStates;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -19,12 +20,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ClientDescriptor {
     private Map<String, byte[]> variableContainer = new ConcurrentHashMap<String, byte[]>();
     private String[] clientState = new String[3];
+    private AgentStates agentState;
 
     //Methods
     //Static methods
 
     /**
      * Производит процесс
+     *
      * @param scenarioFilePath
      * @return
      * @throws ParserConfigurationException
@@ -42,6 +45,7 @@ public class ClientDescriptor {
 
     /**
      * производит конвертацию
+     *
      * @param node
      * @param level
      * @return
@@ -95,7 +99,7 @@ public class ClientDescriptor {
                     if (!(spc.getCommand() instanceof byte[]) &&
                             !(((String) spc.getCommand()).contains("@") || ((String) spc.getCommand()).contains("#") || ((String) spc.getCommand()).contains("$"))) {
                         spc.setCommand(hexStringToByteArray(spc.getCommand().toString()));
-                    } else{
+                    } else {
                         parseAndCompileVariables(spc);
                     }
                 }
@@ -117,6 +121,40 @@ public class ClientDescriptor {
         return data;
     }
 
+    private static ScenarioPairContainer parseAndCompileVariables(ScenarioPairContainer scp) {
+        StringTokenizer st = new StringTokenizer((String) scp.getCommand(), ":");
+        String token;
+        int begin, length;
+        //позиция
+        int positionInArray = 0;
+        while (st.hasMoreTokens()) {
+            token = st.nextToken();
+            if (token.contains("#")) {
+                String name = token.substring(1, token.indexOf("("));
+                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
+                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
+                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 1, begin, length));
+                scp.getInBytes().add(new byte[0]);
+            } else if (token.contains("$")) {
+                String name = token.substring(1, token.indexOf("("));
+                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
+                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
+                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 2, begin, length));
+                scp.getInBytes().add(new byte[0]);
+            } else if (token.contains("@")) {
+                String name = token.substring(1, token.indexOf("("));
+                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
+                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
+                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 3, begin, length));
+                scp.getInBytes().add(new byte[0]);
+            } else {
+                scp.getInBytes().add(hexStringToByteArray(token));
+            }
+            positionInArray++;
+        }
+        return scp;
+    }
+
     //Getters and setters
     public Map<String, byte[]> getVariableContainer() {
         return variableContainer;
@@ -134,40 +172,25 @@ public class ClientDescriptor {
         this.clientState = clientState;
     }
 
-    private static ScenarioPairContainer parseAndCompileVariables(ScenarioPairContainer scp) {
-        StringTokenizer st = new StringTokenizer((String) scp.getCommand(), ":");
-        String token;
-        int begin, length;
-        //позиция
-        int positionInArray = 0;
-        while (st.hasMoreTokens()) {
-            token = st.nextToken();
-            if (token.contains("#")) {
-                String name = token.substring(1, token.indexOf("("));
-                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
-                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
-                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 1, begin, length));
-                scp.getInBytes().add(new byte[0]);
-            } else if(token.contains("$")){
-                String name = token.substring(1, token.indexOf("("));
-                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
-                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
-                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 2, begin, length));
-                scp.getInBytes().add(new byte[0]);
-            } else if (token.contains("@")){
-                String name = token.substring(1, token.indexOf("("));
-                begin = Integer.valueOf(token.substring(token.indexOf("(") + 1, token.indexOf(";")));
-                length = Integer.valueOf(token.substring(token.indexOf(";") + 1, token.indexOf(")")));
-                scp.getVariables().add(new VariablesDescriptor(name, positionInArray, (byte) 3, begin, length));
-                scp.getInBytes().add(new byte[0]);
-            }
-            else {
-                scp.getInBytes().add(hexStringToByteArray(token));
-            }
-            positionInArray++;
-        }
-        return scp;
+    public AgentStates getAgentState() {
+        return agentState;
+    }
+
+    public void setAgentState(AgentStates agentState) {
+        this.agentState = agentState;
     }
 
 
+    //methods
+
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ClientDescriptor{");
+        sb.append("variableContainer=").append(variableContainer);
+        sb.append(", clientState=").append(Arrays.toString(clientState));
+        sb.append(", agentState=").append(agentState);
+        sb.append('}');
+        return sb.toString();
+    }
 }

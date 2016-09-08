@@ -22,11 +22,11 @@ import java.util.logging.Logger;
  * Created by srg on 04.07.16.
  */
 public class StartServer {
-    private Logger logger = Logger.getLogger(StartServer.class.getClass().getName());
+    private static Map<String, String> initParam = new HashMap<String, String>();
+    private Logger logger = Logger.getLogger("START SERVER: ");
     private Map<String, Object> initiateConnectionScenario;
     private Map<String, Object> agentsScenario;
     private Map<String, ClientDescriptor> agentList = new ConcurrentHashMap<String, ClientDescriptor>();
-    private static Map<String,String> initParam = new HashMap<String, String>();
     private boolean isStopped = false;
 
     //methods
@@ -34,15 +34,15 @@ public class StartServer {
         StartServer ss = new StartServer();
         ss.doLabel();
 
-        if (args.length==0)
-        {
+        if (args.length == 0) {
             System.out.println("Укажите параметры запуска в формате: <путь к скрипту установки> ");
         }
         // загрузка сценария установки подключения
-        if (args.length>0 && args[0] != null && !args[0].isEmpty()) ss.loadInitiateConnectionScenario(args[0].toString());
+        if (args.length > 0 && args[0] != null && !args[0].isEmpty())
+            ss.loadInitiateConnectionScenario(args[0].toString());
         else ss.loadInitiateConnectionScenario("/home/user/tmp/scenarios_short1.xml");
         // загрузка сценария агентов
-        if (args.length>1 && args[1] != null && !args[1].isEmpty()) ss.loadAgentsScenario(args[1].toString());
+        if (args.length > 1 && args[1] != null && !args[1].isEmpty()) ss.loadAgentsScenario(args[1].toString());
         else ss.loadAgentsScenario("/home/user/tmp/scenarios_short1.xml");
 
 
@@ -51,6 +51,10 @@ public class StartServer {
         ss.getAgentList().put("client", new ClientDescriptor());
         ss.startListening();
 //        ss.test();
+    }
+
+    private static void menu(String[] args) {
+        System.out.println();
     }
 
     //getter and setters
@@ -83,12 +87,12 @@ public class StartServer {
                 stack = new TransportStack(s);
                 ExecutorThread connectionInitiator = new ExecutorThread(stack, initiateConnectionScenario);
                 executorService.execute(connectionInitiator);
-                while(!connectionInitiator.isConnectionEstablished()){
+                while (!connectionInitiator.isConnectionEstablished()) {
                     try {
                         Thread.currentThread().sleep(100);
                     } catch (InterruptedException e) {
                     }
-                    System.out.println("SLEEPING");
+                    logger.log(Level.INFO, "SLEEPING");
                 }
                 ClientsExecutor clientsExecutor = new ClientsExecutor(stack, agentsScenario, agentList);
                 executorService.execute(clientsExecutor);
@@ -140,10 +144,6 @@ public class StartServer {
         System.out.println("*****   *******     **   **     **   **     *****   *****     **    *******     **   **");
         System.out.println("*****   *******     **   **     **   **     *****   *****     **    *******     **   **");
 
-    }
-
-    private static void menu(String[] args){
-        System.out.println();
     }
 
 }

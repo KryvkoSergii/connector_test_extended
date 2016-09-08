@@ -1,5 +1,6 @@
 package connectornew.connector;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import connectornew.ClientDescriptor;
 import connectornew.ScenarioPairContainer;
 import connectornew.VariablesDescriptor;
@@ -14,8 +15,9 @@ import java.util.logging.Logger;
  * Created by srg on 19.08.16.
  */
 public class ScriptExecutorHolder {
-    public static void execute(ScenarioPairContainer spc, Queue<byte[]> inputMessages, Queue<byte[]> outputMessages, ClientDescriptor clientDescriptor, Logger logger){
+    public static void execute(ScenarioPairContainer spc, Queue<byte[]> inputMessages, Queue<byte[]> outputMessages, ClientDescriptor clientDescriptor, Logger logger) {
         byte[] inputMessage;
+
         switch (spc.getMethod()) {
             //метод GET
             case 0: {
@@ -26,8 +28,9 @@ public class ScriptExecutorHolder {
                 while (inputMessage == null) {
                     inputMessage = inputMessages.poll();
                 }
-                logger.log(Level.INFO, String.format("Reading time from buffer: %f ms", (double) ((System.nanoTime() - startRead) * 0.000001)));
-                logger.log(Level.INFO, String.format("GET: Input message in hex: %s", Hex.encodeHexString(inputMessage)));
+                System.out.println("INPUT MESSAGE: " + Hex.encodeHexString(inputMessage));
+                logger.log(Level.FINEST, String.format("Reading time from buffer: %f ms", (double) ((System.nanoTime() - startRead) * 0.000001)));
+                logger.log(Level.FINEST, String.format("GET: Input message in hex: %s", Hex.encodeHexString(inputMessage)));
                 if (spc.getCommand() instanceof String) {
                     //извлекаются переменные из "компилированного" сценария
                     for (VariablesDescriptor varDesc : (List<VariablesDescriptor>) spc.getVariables()) {
@@ -66,7 +69,7 @@ public class ScriptExecutorHolder {
                         if (varDesc.getName().equals("ICMCentralControllerTimer"))
                             var = ByteBuffer.allocate(varDesc.getLength()).putInt((int) (System.currentTimeMillis() / 1000)).array();
                         clientDescriptor.getVariableContainer().put(varDesc.getName(), var);
-                        logger.log(Level.INFO, String.format("TIME IN HEX: " + Hex.encodeHexString(var)));
+                        logger.log(Level.FINEST, String.format("TIME IN HEX: " + Hex.encodeHexString(var)));
                     }
                 }
                     /*проверяет, если команда представлена в сценарии в byte[], она извлекаетя из сценария.
@@ -83,7 +86,7 @@ public class ScriptExecutorHolder {
 
                 long startWrite = System.nanoTime();
                 outputMessages.add(resultMessage);
-                logger.log(Level.INFO, String.format("Writing time to buffer: %f ms", (double) ((System.nanoTime() - startWrite) * 0.000001)));
+                logger.log(Level.FINEST, String.format("Writing time to buffer: %f ms", (double) ((System.nanoTime() - startWrite) * 0.000001)));
                 logger.log(Level.INFO, String.format("PUT: Sent message"));
                 break;
             }

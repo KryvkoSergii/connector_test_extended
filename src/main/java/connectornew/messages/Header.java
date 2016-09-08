@@ -45,4 +45,13 @@ public class Header {
     public void setMessageType(int messageType) {
         this.messageType = messageType;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Header{");
+        sb.append("messageLength=").append(messageLength);
+        sb.append(", messageType=").append(messageType);
+        sb.append('}');
+        return sb.toString();
+    }
 }

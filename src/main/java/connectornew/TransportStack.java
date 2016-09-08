@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class TransportStack extends Thread {
     static int readCount = 0;
     static int writeCount = 0;
-    private static Logger logger = Logger.getLogger(TransportStack.class.getClass().getName());
+    private static Logger logger = Logger.getLogger("TRANSPORT");
     private final byte[] HEART_BEAT_REQUEST = ClientDescriptor.hexStringToByteArray("000000040000000500000001");
     private final byte[] HEART_BEAT_RESPONSE = ClientDescriptor.hexStringToByteArray("000000040000000600000001");
     private Queue<byte[]> inputMessages = new ConcurrentLinkedQueue<byte[]>();
@@ -29,7 +29,7 @@ public class TransportStack extends Thread {
     //Constructors
     public TransportStack(Socket s) {
         this.clientSocket = s;
-//        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.SEVERE);
     }
 
     //Methods
@@ -148,14 +148,14 @@ public class TransportStack extends Thread {
                 inputMessage = read(clientSocket, false);
 
                 if (inputMessage != null && Arrays.equals(inputMessage, HEART_BEAT_REQUEST)) {
-                    logger.log(Level.INFO, String.format("GOT HEART_BEAT_REQUEST"));
+                    logger.log(Level.SEVERE, String.format("GOT HEART_BEAT_REQUEST"));
                     try {
                         write(clientSocket, HEART_BEAT_RESPONSE);
                         inputMessage = null;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    logger.log(Level.INFO, String.format("SENT HEART_BEAT_RESPONSE"));
+                    logger.log(Level.SEVERE, String.format("SENT HEART_BEAT_RESPONSE"));
                 }
 
                 if (inputMessage != null) {

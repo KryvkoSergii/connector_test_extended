@@ -27,7 +27,6 @@ public class SetAgentStateReq extends Header {
 
     public SetAgentStateReq(byte[] message) {
         super(message);
-
     }
 
 
@@ -132,6 +131,7 @@ public class SetAgentStateReq extends Header {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SetAgentStateReq{");
+        sb.append(super.toString()).append(",");
         sb.append("invokeID=").append(invokeID);
         sb.append(", pheriperalID=").append(pheriperalID);
         sb.append(", agentState='").append(agentState).append('\'');

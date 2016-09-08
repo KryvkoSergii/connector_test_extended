@@ -16,13 +16,11 @@ public abstract class CTI {
     public final static int MAX_MSG_LENGTH = 4329;
 
 
-
     //Special values
     /**
      * No skill group is supplied.
      */
     public final static int SPEC_NULL_SKILL_GROUP = 0xFFFFFFFF;
-
 
 
     //Message types
@@ -67,6 +65,14 @@ public abstract class CTI {
      */
     public final static int MSG_SYSTEM_EVENT = 31;
     /**
+     * Request to report a CTI client event.
+     */
+    public final static int MSG_CLIENT_EVENT_REPORT_REQ = 32;
+    /**
+     * Response confirming a CLIENT_EVENT_REPORT request.
+     */
+    public final static int MSG_CLIENT_EVENT_REPORT_CONF = 33;
+    /**
      * Response indicating the failure of a proceeding control request.
      */
     public final static int MSG_CONTROL_FAILURE_CONF = 35;
@@ -110,6 +116,10 @@ public abstract class CTI {
      * Notification that a CTI Client session has been terminated.
      */
     public final static int MSG_CLIENT_SESSION_CLOSED_EVENT = 100;
+    /**
+     * Request to AGENT desktop settings.
+     */
+    public final static int MSG_AGENT_DESK_SETTINGS_REQ = 131;
     /**
      * Request to start monitoring an Agent Team.
      */
