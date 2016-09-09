@@ -1,4 +1,4 @@
-package connectornew.messages;
+package connectornew.messages.agent_events;
 
 /**
  * Added by A.Osadchuk on 31.08.2016 at 13:42.
@@ -16,5 +16,12 @@ public enum AgentStates {
             if (code.ordinal() == mask) return code;
         }
         return AGENT_STATE_UNKNOWN;
+    }
+
+    public static int setIntState(AgentStates agentStates) {
+        for (AgentStates code : AgentStates.values()) {
+            if (code.equals(agentStates)) return code.ordinal();
+        }
+        return 9;
     }
 }

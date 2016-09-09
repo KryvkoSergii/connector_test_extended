@@ -1,6 +1,6 @@
 package connectornew;
 
-import connectornew.messages.AgentStates;
+import connectornew.messages.agent_events.AgentStates;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ClientDescriptor {
     private Map<String, byte[]> variableContainer = new ConcurrentHashMap<String, byte[]>();
     private String[] clientState = new String[3];
-    private AgentStates agentState;
+    private AgentStates agentState = AgentStates.AGENT_STATE_LOGOUT;
 
     //Methods
     //Static methods

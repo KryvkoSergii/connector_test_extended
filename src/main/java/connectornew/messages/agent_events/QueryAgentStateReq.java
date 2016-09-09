@@ -1,4 +1,7 @@
-package connectornew.messages;
+package connectornew.messages.agent_events;
+
+import connectornew.messages.FloatingField;
+import connectornew.messages.Header;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
