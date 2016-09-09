@@ -4,6 +4,8 @@ import connectornew.ClientDescriptor;
 import connectornew.ScenarioPairContainer;
 import connectornew.TransportStack;
 import connectornew.messages.*;
+import connectornew.messages.session_management.CloseConf;
+import connectornew.messages.session_management.CloseReq;
 import org.apache.commons.codec.binary.Hex;
 
 import javax.management.Query;
@@ -40,10 +42,12 @@ public class ClientsExecutor implements Runnable {
         Queue<byte[]> inputMessages = stack.getInputMessages();
         Queue<byte[]> outputMessages = stack.getOutputMessages();
         System.out.println("IN CLIENT");
+        a:
         while (!Thread.currentThread().isInterrupted()) {
             byte[] message = inputMessages.peek();
             if (message == null) continue;
             System.out.println("CLIENT POOL SIZE " + agentList.size());
+            System.out.println("INPUT CLIENT MESSAGE #" + ByteBuffer.wrap(message, 4, 4).getInt() + " " + Hex.encodeHexString(message));
             switch (Header.parseMessageType(message)) {
                 case CTI.MSG_QUERY_AGENT_STATE_REQ: {
                     //десериализация сообщения
@@ -107,6 +111,20 @@ public class ClientsExecutor implements Runnable {
                         clientEventReportConf.setInvokeID(clientEventReportReq.getInvokeID());
                         outputMessages.add(clientEventReportConf.serializeMessage());
                         logger.log(Level.INFO, clientEventReportConf.toString());
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, e.getMessage());
+                    }
+                    break;
+                }
+                case CTI.MSG_CLOSE_REQ: {
+                    CloseReq closeReq = CloseReq.deserializeMessage(message);
+                    logger.log(Level.INFO, closeReq.toString());
+                    inputMessages.remove();
+                    try {
+                        CloseConf closeConf = new CloseConf(closeReq.getInvokeId());
+                        outputMessages.add(closeConf.serializeMessage());
+                        logger.log(Level.INFO, closeConf.toString());
+                        break a;
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, e.getMessage());
                     }

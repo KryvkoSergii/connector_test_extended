@@ -25,7 +25,7 @@ public class ExecutorThread implements Runnable {
         this.connectionInitiatingScenario = connectionInitiatingScenario;
         scriptExecutingStateHolder = new ClientDescriptor();
         logger = Logger.getLogger("EXECUTOR THREAD-" + stack.getClientSocket().getPort());
-        logger.setLevel(Level.SEVERE);
+        logger.setLevel(Level.INFO);
         logger.log(Level.SEVERE, stack.getClientSocket().getRemoteSocketAddress() + " accepted");
     }
 
@@ -74,6 +74,4 @@ public class ExecutorThread implements Runnable {
         //запуск клиента
         logger.log(Level.SEVERE, "CONNECTION ESTABLISHED");
     }
-
-
 }

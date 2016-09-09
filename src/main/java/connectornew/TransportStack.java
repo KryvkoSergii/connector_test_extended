@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,7 +30,7 @@ public class TransportStack extends Thread {
     //Constructors
     public TransportStack(Socket s) {
         this.clientSocket = s;
-        logger.setLevel(Level.SEVERE);
+        logger.setLevel(Level.INFO);
     }
 
     //Methods
@@ -161,13 +162,13 @@ public class TransportStack extends Thread {
                 if (inputMessage != null) {
                     inputMessages.add(inputMessage);
                     readCount++;
-                    logger.log(Level.INFO, String.format("READ MESSAGE FROM NET: " + Hex.encodeHexString(inputMessage)));
+                    logger.log(Level.INFO, String.format("READ MESSAGE FROM NET TYPE #" + ByteBuffer.wrap(inputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(inputMessage)));
                 }
 
                 outputMessage = outputMessages.poll();
                 if (outputMessage != null) {
                     write(clientSocket, outputMessage);
-                    logger.log(Level.INFO, String.format("WROTE MESSAGE TO NET: " + Hex.encodeHexString(outputMessage)));
+                    logger.log(Level.INFO, String.format("WROTE MESSAGE TO NET TYPE #" + ByteBuffer.wrap(outputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(outputMessage)));
                     writeCount++;
                 }
 

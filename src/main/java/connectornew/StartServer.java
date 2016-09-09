@@ -89,7 +89,7 @@ public class StartServer {
                 executorService.execute(connectionInitiator);
                 while (!connectionInitiator.isConnectionEstablished()) {
                     try {
-                        Thread.currentThread().sleep(100);
+                        Thread.currentThread().sleep(1000);
                     } catch (InterruptedException e) {
                     }
                     logger.log(Level.INFO, "SLEEPING");
