@@ -1,4 +1,4 @@
-package connectornew.messages;
+package connectornew.messages.common;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -18,6 +18,15 @@ public class Header {
     public Header(byte[] message) {
         int messageLength = ByteBuffer.wrap(message, 0, 3).getInt();
         int messageType = ByteBuffer.wrap(message, 4, 7).getInt();
+    }
+
+    protected Header(int messageType) {
+        this.messageType = messageType;
+    }
+
+    protected Header(int messageLength, int messageType) {
+        this.messageLength = messageLength;
+        this.messageType = messageType;
     }
 
     //static methods

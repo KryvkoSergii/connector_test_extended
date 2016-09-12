@@ -1,11 +1,8 @@
 package connectornew.messages.session_management;
 
-import connectornew.messages.CTI;
-import connectornew.messages.FloatingField;
-import connectornew.messages.Header;
+import connectornew.messages.common.Header;
 
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**

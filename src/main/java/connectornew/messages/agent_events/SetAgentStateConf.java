@@ -1,7 +1,7 @@
 package connectornew.messages.agent_events;
 
 import connectornew.messages.CTI;
-import connectornew.messages.Header;
+import connectornew.messages.common.Header;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;

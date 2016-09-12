@@ -1,4 +1,4 @@
-package connectornew.messages;
+package connectornew.messages.common;
 
 /**
  * Added by A.Osadchuk on 25.08.2016 at 18:10.

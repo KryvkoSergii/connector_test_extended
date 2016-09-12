@@ -1,4 +1,4 @@
-package connectornew.messages;
+package connectornew.messages.common;
 
 import connectornew.exception.CTIFieldException;
 

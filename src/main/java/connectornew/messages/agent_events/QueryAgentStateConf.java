@@ -1,8 +1,8 @@
 package connectornew.messages.agent_events;
 
 import connectornew.messages.CTI;
-import connectornew.messages.FloatingField;
-import connectornew.messages.Header;
+import connectornew.messages.common.FloatingField;
+import connectornew.messages.common.Header;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.BufferOverflowException;

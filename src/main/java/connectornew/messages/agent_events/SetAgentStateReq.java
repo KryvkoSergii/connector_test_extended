@@ -1,7 +1,7 @@
 package connectornew.messages.agent_events;
 
-import connectornew.messages.FloatingField;
-import connectornew.messages.Header;
+import connectornew.messages.common.FloatingField;
+import connectornew.messages.common.Header;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
