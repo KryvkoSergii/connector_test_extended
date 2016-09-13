@@ -76,4 +76,18 @@ public enum PGStatusCodes {
         }
         return "PGStatusCodes not found for Mask=" + mask;
     }
+
+    public static int setIntState(PGStatusCodes codes) {
+        for (PGStatusCodes code : PGStatusCodes.values()) {
+            if (code.equals(codes)) return code.ordinal();
+        }
+        return 0x00000000;
+    }
+
+    public static PGStatusCodes getPGStatusCode(int mask) {
+        for (PGStatusCodes code : PGStatusCodes.values()) {
+            if (code.getMask() == mask) return code;
+        }
+        return PGStatusCodes.PGS_CC_DOWN;
+    }
 }

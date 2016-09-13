@@ -72,6 +72,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -83,6 +84,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -94,6 +96,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -105,6 +108,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -116,6 +120,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -127,6 +132,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -138,6 +144,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -149,6 +156,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -160,6 +168,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -171,6 +180,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -182,6 +192,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -193,6 +204,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -204,6 +216,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -215,6 +228,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -226,6 +240,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -237,6 +252,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -248,6 +264,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -259,6 +276,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -270,6 +288,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -281,6 +300,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -292,6 +312,7 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
@@ -303,16 +324,12 @@ public enum PeripheralTypes {
         protected int getMask() {
             return mask;
         }
+
         protected String getMessage() {
             return msg;
         }
     };
 
-
-    //Methods
-    protected abstract int getMask();
-
-    protected abstract String getMessage();
 
     public static String getMessage(int mask) {
         for (PeripheralTypes code : PeripheralTypes.values()) {
@@ -320,4 +337,23 @@ public enum PeripheralTypes {
         }
         return "PeripheralType not found for Mask=" + mask;
     }
+
+    public static int getInt(PeripheralTypes type) {
+        for (PeripheralTypes code : PeripheralTypes.values()) {
+            if (code.getMask() == type.getMask()) return type.getMask();
+        }
+        return 0xffff;
+    }
+
+    public static PeripheralTypes getType(int mask) {
+        for (PeripheralTypes code : PeripheralTypes.values()) {
+            if (code.getMask() == mask) return code;
+        }
+        return PT_NONE;
+    }
+
+    //Methods
+    protected abstract int getMask();
+
+    protected abstract String getMessage();
 }

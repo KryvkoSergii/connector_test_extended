@@ -16,7 +16,7 @@ import java.util.List;
  * Project: SmiddleRecording
  */
 public class SystemEvent extends Header {
-    private String pgStatus;
+    private PGStatusCodes pgStatus;
     private Date ICMCentralControllerTime;
     private String systemEventId;
     private String systemEventArg1;
@@ -33,11 +33,11 @@ public class SystemEvent extends Header {
 
 
     //Getters & setters
-    public String getPgStatus() {
+    public PGStatusCodes getPgStatus() {
         return pgStatus;
     }
 
-    public void setPgStatus(String pgStatus) {
+    public void setPgStatus(PGStatusCodes pgStatus) {
         this.pgStatus = pgStatus;
     }
 
