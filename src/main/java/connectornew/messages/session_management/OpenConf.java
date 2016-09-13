@@ -30,7 +30,7 @@ public class OpenConf extends Header {
     private Date ICMCentralControllerTime; //The current Central Controller date and time.
     private short peripheralOnline; //The current UCCE on-line status of the agent’s peripheral, when Client Events service has been granted. Otherwise, set this value to TRUE only when all peripherals monitored by the PG are on-line.
     private PeripheralTypes peripheralType;   //The type of the peripheral when Client Events Service has been granted.
-    private String agentState;       //The current state of the associated agent phone (Client Events Service only).
+    private AgentStates agentState;       //The current state of the associated agent phone (Client Events Service only).
     private int MAX_LENGTH = 132;
     private int FIXED_PART = 26;
 
@@ -50,8 +50,8 @@ public class OpenConf extends Header {
         message.setPGStatus(PGStatusCodes.getPGStatusCode(buffer.getInt()));
         message.setICMCentralControllerTime(new Date(Integer.toUnsignedLong(buffer.getInt()) * 1000));
         message.setPeripheralOnline(buffer.getShort());
-        message.setPeripheralType(PeripheralTypes.getMessage(Short.toUnsignedInt(buffer.getShort())));
-        message.setAgentState(AgentStates.getState(Short.toUnsignedInt(buffer.getShort())).name());
+        message.setPeripheralType(PeripheralTypes.getType(Short.toUnsignedInt(buffer.getShort())));
+        message.setAgentState(AgentStates.getState(Short.toUnsignedInt(buffer.getShort())));
         while (true) {
             try {
                 message.getFloatingFields().add(FloatingField.deserializeField(buffer));
@@ -119,11 +119,11 @@ public class OpenConf extends Header {
         this.peripheralType = peripheralType;
     }
 
-    public String getAgentState() {
+    public AgentStates getAgentState() {
         return agentState;
     }
 
-    public void setAgentState(String agentState) {
+    public void setAgentState(AgentStates agentState) {
         this.agentState = agentState;
     }
 
@@ -148,9 +148,10 @@ public class OpenConf extends Header {
                     .putInt(servicesGranted)
                     .putInt(monitorId)
                     .putInt(PGStatusCodes.setIntState(PGStatus))
-                    .putInt(new Long(ICMCentralControllerTime.getTime()/1000).intValue())
-                    .putShort(callMsgMask)
-                    .putInt(agentStateMask).putInt(configMsgMask).putInt(reserved1).putInt(reserved2).putInt(reserved3);
+                    .putInt(new Long(ICMCentralControllerTime.getTime() / 1000).intValue())
+                    .putShort(peripheralOnline)
+                    .putShort((short) PeripheralTypes.getInt(peripheralType))
+                    .putShort((short) AgentStates.setIntState(agentState));
             for (FloatingField field : floatingFields) {
                 field.serializeField(buffer);
             }
