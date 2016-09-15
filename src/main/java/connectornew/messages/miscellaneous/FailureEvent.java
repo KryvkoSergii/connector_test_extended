@@ -1,8 +1,8 @@
 package connectornew.messages.miscellaneous;
 
-import ua.com.smiddle.SmiddleRecording.core.model.cti.CTI;
-import ua.com.smiddle.SmiddleRecording.core.model.cti.common.ConfCodes;
-import ua.com.smiddle.SmiddleRecording.core.model.cti.common.Header;
+import connectornew.messages.CTI;
+import connectornew.messages.common.ConfCodes;
+import connectornew.messages.common.Header;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

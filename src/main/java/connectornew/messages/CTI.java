@@ -117,6 +117,11 @@ public abstract class CTI {
      */
     public final static int MSG_CLIENT_SESSION_CLOSED_EVENT = 100;
     /**
+     * Once a supervisor CTI client session is opened, the CTIServer will send one or more
+     * AGENT_TEAM_CONFIG_EVENT messages with the list of team members for that supervisor.
+     */
+    public final static int MSG_AGENT_TEAM_CONFIG_EVENT = 128;
+    /**
      * Request to AGENT desktop settings.
      */
     public final static int MSG_AGENT_DESK_SETTINGS_REQ = 131;
@@ -144,6 +149,46 @@ public abstract class CTI {
      * Response to AGENT_INIT_REQ.
      */
     public final static int MSG_AGENT_INIT_RESP = 183;
+    /**
+     * no docs, from sniffing
+     */
+    public final static int MSG_CONFIG_REQUEST_KEY_EVENT = 230;
+    /**
+     * The CONFIG_KEY_EVENT message is sent by the CTI Server in response to
+     * CONFIG_REQUEST_KEY_EVENT message. It will contain the configuration keys at the time of the
+     * request. Note that if the CTI Server doesn’t support separate keys that it may respond with 4 identical keys
+     * and it should send the message with no optional fields. Returning any key of all binary 0’s will indicate to
+     * the client that particular configuration should be uploaded.
+     */
+    public final static int MSG_CONFIG_KEY_EVENT = 231;
+    /**
+     * The CONFIG_REQUEST_EVENT message may be sent by the client whenever it wants to check and
+     * receive a particular configuration from the CTI Server. The CTI Server should respond by sending a
+     * CONFIG_BEGIN_EVENT, CONFIG_xxx records, then a CONFIG_END block containing all records for
+     * that configuration item.
+     */
+    public final static int MSG_CONFIG_REQUEST_EVENT = 232;
+    /**
+     * The CONFIG_BEGIN_EVENT signifies the beginning of configuration data (all of the same key) from the
+     * CTI Server.
+     */
+    public final static int MSG_CONFIG_BEGIN_EVENT = 233;
+    /**
+     * no docs, from sniffing
+     */
+    public final static int MSG_CONFIG_END_EVENT = 234;
+    /**
+     * The CONFIG_SKILL_GROUP_EVENT message will be sent to indicate a Skill Group configuration
+     * update. Please note that the Peripheral Number field is considered unique for all records. Two records sent
+     * with matching Peripheral Numbers will be the considered the same record.
+     */
+    public final static int MSG_CONFIG_SKILL_GROUP_EVENT = 236;
+    /**
+     * The CONFIG_AGENT_EVENT message will be sent by the CTI Server to provide information
+     * about Agent. Please note that the LoginID field is considered unique for all records. Two records sent with
+     * matching LoginID’s will be the considered the same record.
+     */
+    public final static int MSG_CONFIG_AGENT_EVENT = 237;
 
 
     //Service masks

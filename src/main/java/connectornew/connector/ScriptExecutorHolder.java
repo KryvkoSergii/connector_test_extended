@@ -1,7 +1,7 @@
 package connectornew.connector;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import connectornew.ClientDescriptor;
+import connectornew.Logger;
 import connectornew.ScenarioPairContainer;
 import connectornew.VariablesDescriptor;
 import org.apache.commons.codec.binary.Hex;
@@ -9,7 +9,6 @@ import org.apache.commons.codec.binary.Hex;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by srg on 19.08.16.
@@ -21,14 +20,21 @@ public class ScriptExecutorHolder {
         switch (spc.getMethod()) {
             //метод GET
             case 0: {
-                logger.log(Level.INFO, String.format("GET COMMAND"));
+                logger.log(Level.FINE, String.format("GET COMMAND"));
                 inputMessage = null;
                 long startRead = System.nanoTime();
                 //ожидание получения
+                int tmp = 0;
                 while (inputMessage == null) {
+                    try {
+                        Thread.currentThread().sleep(500);
+                        tmp++;
+                    } catch (Exception e) {
+                    }
                     inputMessage = inputMessages.poll();
+                    if (tmp > 7) return;
                 }
-                System.out.println("INPUT MESSAGE: " + Hex.encodeHexString(inputMessage));
+                logger.log(Level.FINEST, "INPUT MESSAGE: " + Hex.encodeHexString(inputMessage));
                 logger.log(Level.FINEST, String.format("Reading time from buffer: %f ms", (double) ((System.nanoTime() - startRead) * 0.000001)));
                 logger.log(Level.FINEST, String.format("GET: Input message in hex: %s", Hex.encodeHexString(inputMessage)));
                 if (spc.getCommand() instanceof String) {
@@ -49,19 +55,20 @@ public class ScriptExecutorHolder {
                         }
                     }
                     byte[] resultMessage = assemblyMessageInByte(spc, clientDescriptor);
-                    logger.log(Level.INFO, String.format("GET: Processed message in hex: %s", Hex.encodeHexString(resultMessage)));
+                    logger.log(Level.INFO, String.format("GET: Expected message #%s in hex: %s", ByteBuffer.wrap(resultMessage, 4, 4).getInt(), Hex.encodeHexString(resultMessage)));
                     logger.log(Level.INFO, String.format("GET: Is received message equals to processed message: %s", Arrays.equals(inputMessage, resultMessage)));
                     break;
                 } else if (spc.getCommand() instanceof byte[]) {
                     byte[] resultMessage = (byte[]) spc.getCommand();
-                    logger.log(Level.INFO, String.format("GET: Loaded message in hex from scenario: %s", Hex.encodeHexString(resultMessage)));
+                    logger.log(Level.FINEST, String.format("GET: Loaded message in hex from scenario: %s", Hex.encodeHexString(resultMessage)));
+                    logger.log(Level.INFO, String.format("GET: Expected message #%s in hex: %s", ByteBuffer.wrap(resultMessage, 4, 4).getInt(), Hex.encodeHexString(resultMessage)));
                     logger.log(Level.INFO, String.format("GET: Is received message equals to processed message: %s", Arrays.equals(inputMessage, resultMessage)));
                     break;
                 }
             }
             //метод PUT
             case 1: {
-                logger.log(Level.INFO, String.format("PUT COMMAND"));
+                logger.log(Level.FINE, String.format("PUT COMMAND"));
                 for (VariablesDescriptor varDesc : (List<VariablesDescriptor>) spc.getVariables()) {
                     if (varDesc.getType() == 3) {
                         //сгенерировать переменную по имени
@@ -78,16 +85,16 @@ public class ScriptExecutorHolder {
                 byte[] resultMessage;
                 if (spc.getCommand() instanceof byte[]) {
                     resultMessage = (byte[]) spc.getCommand();
-                    logger.log(Level.INFO, String.format("PUT: Processed message in hex: %s", Hex.encodeHexString(resultMessage)));
+                    logger.log(Level.FINE, String.format("PUT: Processed message in hex: %s", Hex.encodeHexString(resultMessage)));
                 } else {
                     resultMessage = assemblyMessageInByte(spc, clientDescriptor);
-                    logger.log(Level.INFO, String.format("PUT: Processed message in hex: %s", Hex.encodeHexString(resultMessage)));
+                    logger.log(Level.FINE, String.format("PUT: Processed message in hex: %s", Hex.encodeHexString(resultMessage)));
                 }
 
                 long startWrite = System.nanoTime();
                 outputMessages.add(resultMessage);
                 logger.log(Level.FINEST, String.format("Writing time to buffer: %f ms", (double) ((System.nanoTime() - startWrite) * 0.000001)));
-                logger.log(Level.INFO, String.format("PUT: Sent message"));
+                logger.log(Level.FINEST, String.format("PUT: Sent message"));
                 break;
             }
             default: {

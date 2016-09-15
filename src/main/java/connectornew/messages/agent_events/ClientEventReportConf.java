@@ -1,9 +1,11 @@
 package connectornew.messages.agent_events;
 
 import connectornew.messages.CTI;
+import connectornew.messages.common.FloatingField;
 import connectornew.messages.common.Header;
 
 import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,6 +35,19 @@ public class ClientEventReportConf extends Header {
             return buffer.array();
         } catch (BufferOverflowException e) {
             throw new Exception("Buffer overflowed during MSG_QUERY_AGENT_STATE_REQ serialization!");
+        }
+    }
+
+    public static ClientEventReportConf deserializeMessage(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        ClientEventReportConf message = new ClientEventReportConf();
+        try {
+            message.setMessageLength(buffer.getInt());
+            message.setMessageType(buffer.getInt());
+            message.setInvokeID(buffer.getInt());
+            return message;
+        } catch (BufferUnderflowException e) {
+            return message;
         }
     }
 

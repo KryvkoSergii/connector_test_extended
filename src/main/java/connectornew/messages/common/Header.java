@@ -1,7 +1,6 @@
 package connectornew.messages.common;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Created by srg on 07.09.16.

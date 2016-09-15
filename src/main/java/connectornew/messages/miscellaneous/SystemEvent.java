@@ -1,8 +1,9 @@
 package connectornew.messages.miscellaneous;
 
-import ua.com.smiddle.SmiddleRecording.core.model.cti.CTI;
-import ua.com.smiddle.SmiddleRecording.core.model.cti.common.FloatingField;
-import ua.com.smiddle.SmiddleRecording.core.model.cti.common.Header;
+
+import connectornew.messages.CTI;
+import connectornew.messages.common.FloatingField;
+import connectornew.messages.common.Header;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -16,6 +17,7 @@ import java.util.List;
  * Project: SmiddleRecording
  */
 public class SystemEvent extends Header {
+    List<FloatingField> floatingFields = new ArrayList<>(2);
     private PGStatusCodes pgStatus;
     private Date ICMCentralControllerTime;
     private String systemEventId;
@@ -23,7 +25,6 @@ public class SystemEvent extends Header {
     private String systemEventArg2;
     private String systemEventArg3;
     private String eventDeviceType;
-    List<FloatingField> floatingFields = new ArrayList<>(2);
 
 
     //Constructors
@@ -31,6 +32,33 @@ public class SystemEvent extends Header {
         super(CTI.MSG_SYSTEM_EVENT);
     }
 
+
+    //Methods
+    public static SystemEvent deserializeMessage(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        SystemEvent message = new SystemEvent();
+        try {
+            message.setMessageLength(buffer.getInt());
+            message.setMessageType(buffer.getInt());
+            message.setPgStatus(PGStatusCodes.getPGStatusCode(buffer.getInt()));
+            message.setICMCentralControllerTime(new Date(Integer.toUnsignedLong(buffer.getInt()) * 1000));
+            message.setSystemEventId(SystemEvents.getMessage(buffer.getInt()));
+            message.setSystemEventArg1(SystemEvents.getMessage(buffer.getInt()));
+            message.setSystemEventArg2(SystemEvents.getMessage(buffer.getInt()));
+            message.setSystemEventArg3(SystemEvents.getMessage(buffer.getInt()));
+            message.setEventDeviceType(EventDeviceTypes.getMessage(Short.toUnsignedInt(buffer.getShort())));
+            while (true) {
+                try {
+                    message.getFloatingFields().add(FloatingField.deserializeField(buffer));
+                } catch (BufferUnderflowException e) {
+                    break;
+                }
+            }
+            return message;
+        } catch (BufferUnderflowException e) {
+            return message;
+        }
+    }
 
     //Getters & setters
     public PGStatusCodes getPgStatus() {
@@ -97,40 +125,12 @@ public class SystemEvent extends Header {
         this.floatingFields = floatingFields;
     }
 
-
-    //Methods
-    public static SystemEvent deserializeMessage(byte[] bytes) {
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        SystemEvent message = new SystemEvent();
-        message.setMessageLength(bytes.length);
-        try {
-            message.setPgStatus(PGStatusCodes.getMessage(buffer.getInt()));
-            message.setICMCentralControllerTime(new Date(Integer.toUnsignedLong(buffer.getInt()) * 1000));
-            message.setSystemEventId(SystemEvents.getMessage(buffer.getInt()));
-            message.setSystemEventArg1(SystemEvents.getMessage(buffer.getInt()));
-            message.setSystemEventArg2(SystemEvents.getMessage(buffer.getInt()));
-            message.setSystemEventArg3(SystemEvents.getMessage(buffer.getInt()));
-            message.setEventDeviceType(EventDeviceTypes.getMessage(Short.toUnsignedInt(buffer.getShort())));
-            while (true) {
-                try {
-                    message.getFloatingFields().add(FloatingField.deserializeField(buffer));
-                } catch (BufferUnderflowException e) {
-                    break;
-                }
-            }
-            return message;
-        } catch (BufferUnderflowException e) {
-            return message;
-        }
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("Header{messageLength=").append(getMessageLength());
-        sb.append(", messageType=").append(getMessageType());
-        sb.append('}');
-        sb.append(" SystemEvent{pgStatus=").append(pgStatus);
+        sb.append(" SystemEvent{");
+        sb.append(super.toString());
+        sb.append(", pgStatus=").append(pgStatus);
         sb.append(", ICMCentralControllerTime=").append(ICMCentralControllerTime);
         sb.append(", systemEventId=").append(systemEventId);
         sb.append(", systemEventArg1=").append(systemEventArg1);

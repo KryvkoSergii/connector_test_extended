@@ -31,8 +31,8 @@ public class OpenConf extends Header {
     private short peripheralOnline; //The current UCCE on-line status of the agent’s peripheral, when Client Events service has been granted. Otherwise, set this value to TRUE only when all peripherals monitored by the PG are on-line.
     private PeripheralTypes peripheralType;   //The type of the peripheral when Client Events Service has been granted.
     private AgentStates agentState;       //The current state of the associated agent phone (Client Events Service only).
-    private int MAX_LENGTH = 132;
-    private int FIXED_PART = 26;
+    private static int MAX_LENGTH = 132;
+    private static int FIXED_PART = 26;
 
     //Constructors
     public OpenConf() {
@@ -43,7 +43,8 @@ public class OpenConf extends Header {
     public static OpenConf deserializeMessage(byte[] bytes) throws UnsupportedEncodingException {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         OpenConf message = new OpenConf();
-        message.setMessageLength(bytes.length);
+        message.setMessageLength(buffer.getInt());
+        message.setMessageType(buffer.getInt());
         message.setInvokeId(buffer.getInt());
         message.setServicesGranted(buffer.getInt());
         message.setMonitorId(buffer.getInt());

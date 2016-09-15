@@ -39,7 +39,8 @@ public class QueryAgentStateConf extends Header {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         QueryAgentStateConf message = new QueryAgentStateConf();
         try {
-            message.setMessageLength(bytes.length);
+            message.setMessageLength(buffer.getInt());
+            message.setMessageType(buffer.getInt());
             message.setInvokeId(buffer.getInt());
             message.setAgentState(AgentStates.getState(Short.toUnsignedInt(buffer.getShort())));
             message.setNumSkillGroups(buffer.getShort());
@@ -67,8 +68,8 @@ public class QueryAgentStateConf extends Header {
             this.setMessageLength(MHDR + FIXED_PART + FloatingField.calculateFloatingPart(floatingFields));
             this.setMessageType(CTI.MSG_CLIENT_EVENT_REPORT_CONF);
             ByteBuffer buffer = ByteBuffer.allocate(MHDR + FIXED_PART + FloatingField.calculateFloatingPart(floatingFields))
-                    .putInt(MHDR + FIXED_PART + FloatingField.calculateFloatingPart(floatingFields))
-                    .putInt(CTI.MSG_QUERY_AGENT_STATE_CONF)
+                    .putInt(this.getMessageLength())
+                    .putInt(this.getMessageType())
                     .putInt(invokeId)
                     .putShort((short) AgentStates.setIntState(agentState))
                     .putShort(numSkillGroups)

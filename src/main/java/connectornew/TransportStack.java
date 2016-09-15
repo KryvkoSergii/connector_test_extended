@@ -1,5 +1,10 @@
 package connectornew;
 
+import connectornew.messages.CTI;
+import connectornew.messages.agent_events.*;
+import connectornew.messages.miscellaneous.*;
+import connectornew.messages.session_management.OpenConf;
+import connectornew.messages.session_management.OpenReq;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
@@ -11,7 +16,6 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by srg on 14.07.16.
@@ -19,7 +23,7 @@ import java.util.logging.Logger;
 public class TransportStack extends Thread {
     static int readCount = 0;
     static int writeCount = 0;
-    private static Logger logger = Logger.getLogger("TRANSPORT");
+    private static Logger logger = new connectornew.Logger("TRANSPORT");
     private final byte[] HEART_BEAT_REQUEST = ClientDescriptor.hexStringToByteArray("000000040000000500000001");
     private final byte[] HEART_BEAT_RESPONSE = ClientDescriptor.hexStringToByteArray("000000040000000600000001");
     private Queue<byte[]> inputMessages = new ConcurrentLinkedQueue<byte[]>();
@@ -37,7 +41,6 @@ public class TransportStack extends Thread {
     public static byte[] read(Socket s, boolean shouldWaiting) throws IOException {
         InputStream fromClient = s.getInputStream();
 //        System.out.println("available " + fromClient.available());
-
         if (!shouldWaiting && !(fromClient.available() > 0)) {
 //            logger.log(Level.INFO, "nothing to read");
             return null;
@@ -86,6 +89,7 @@ public class TransportStack extends Thread {
             counter++;
         }
         s.setSoLinger(true, 0);
+
 
         return resultMessage;
     }
@@ -144,6 +148,7 @@ public class TransportStack extends Thread {
         super.run();
         byte[] inputMessage;
         byte[] outputMessage;
+        String direction;
         while (!isInterrupted()) {
             try {
                 inputMessage = read(clientSocket, false);
@@ -162,18 +167,120 @@ public class TransportStack extends Thread {
                 if (inputMessage != null) {
                     inputMessages.add(inputMessage);
                     readCount++;
-                    logger.log(Level.INFO, String.format("READ MESSAGE FROM NET TYPE #" + ByteBuffer.wrap(inputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(inputMessage)));
+                    logger.log(Level.FINER, String.format("READ MESSAGE FROM NET TYPE #" + ByteBuffer.wrap(inputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(inputMessage)));
+                    direction = " CTI-OS -> CTI ";
+                    int code = ByteBuffer.wrap(inputMessage, 4, 4).getInt();
+                    switch (code) {
+                        case CTI.MSG_OPEN_REQ: {
+                            OpenReq openReq = OpenReq.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, openReq.toString());
+                            break;
+                        }
+                        case CTI.MSG_CLIENT_EVENT_REPORT_REQ: {
+                            ClientEventReportReq clientEventReportReq = ClientEventReportReq.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, direction + clientEventReportReq.toString());
+                            break;
+                        }
+                        case CTI.MSG_QUERY_AGENT_STATE_REQ: {
+                            QueryAgentStateReq queryAgentStateReq = QueryAgentStateReq.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, direction + queryAgentStateReq.toString());
+                            break;
+                        }
+                        case CTI.MSG_SET_AGENT_STATE_REQ: {
+                            SetAgentStateReq setAgentStateReq = SetAgentStateReq.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, direction + setAgentStateReq.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_REQUEST_KEY_EVENT: {
+                            ConfigRequestKeyEvent configRequestKeyEvent = ConfigRequestKeyEvent.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, direction + configRequestKeyEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_REQUEST_EVENT: {
+                            ConfigRequestEvent configRequestEvent = ConfigRequestEvent.deserializeMessage(inputMessage);
+                            logger.log(Level.INFO, direction + configRequestEvent.toString());
+                            break;
+                        }
+
+                        default: {
+                            logger.log(Level.INFO, "unknown input message #" + code + " MESSAGE: " + Hex.encodeHexString(inputMessage));
+                        }
+                    }
                 }
 
                 outputMessage = outputMessages.poll();
                 if (outputMessage != null) {
+                    int code = ByteBuffer.wrap(outputMessage, 4, 4).getInt();
+                    direction = " CTI-OS <- CTI ";
+                    switch (code) {
+                        case CTI.MSG_OPEN_CONF: {
+                            OpenConf openReq = OpenConf.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + openReq.toString());
+                            break;
+                        }
+                        case CTI.MSG_SYSTEM_EVENT: {
+                            SystemEvent systemEvent = SystemEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + systemEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CLIENT_EVENT_REPORT_CONF: {
+                            ClientEventReportConf clientEventReportConf = ClientEventReportConf.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + clientEventReportConf.toString());
+                            break;
+                        }
+                        case CTI.MSG_QUERY_AGENT_STATE_CONF: {
+                            QueryAgentStateConf queryAgentStateConf = QueryAgentStateConf.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + queryAgentStateConf.toString());
+                            break;
+                        }
+                        case CTI.MSG_AGENT_TEAM_CONFIG_EVENT: {
+                            AgentTeamConfigEvent agentTeamConfigEvent = AgentTeamConfigEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + agentTeamConfigEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_KEY_EVENT: {
+                            ConfigKeyEvent configKeyEvent = ConfigKeyEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + configKeyEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_BEGIN_EVENT: {
+                            ConfigBeginEvent configBeginEvent = ConfigBeginEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + configBeginEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_END_EVENT: {
+                            ConfigEndEvent configEndEvent = ConfigEndEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + configEndEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_SKILL_GROUP_EVENT: {
+                            ConfigSkillGroupEvent configSkillGroupEvent = ConfigSkillGroupEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + configSkillGroupEvent.toString());
+                            break;
+                        }
+                        case CTI.MSG_CONFIG_AGENT_EVENT: {
+                            ConfigAgentEvent configAgentEvent = ConfigAgentEvent.deserializeMessage(outputMessage);
+                            logger.log(Level.INFO, direction + configAgentEvent.toString());
+                            break;
+                        }
+                        default: {
+                            logger.log(Level.INFO, "unknown output message #" + code + " MESSAGE: " + Hex.encodeHexString(outputMessage));
+                        }
+                    }
+
                     write(clientSocket, outputMessage);
-                    logger.log(Level.INFO, String.format("WROTE MESSAGE TO NET TYPE #" + ByteBuffer.wrap(outputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(outputMessage)));
+                    logger.log(Level.FINER, String.format("WROTE MESSAGE TO NET TYPE #" + ByteBuffer.wrap(outputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(outputMessage)));
                     writeCount++;
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    clientSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                interrupt();
+                break;
             }
         }
 

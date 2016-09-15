@@ -92,7 +92,6 @@ public class StartServer {
                         Thread.currentThread().sleep(1000);
                     } catch (InterruptedException e) {
                     }
-                    logger.log(Level.INFO, "SLEEPING");
                 }
                 ClientsExecutor clientsExecutor = new ClientsExecutor(stack, agentsScenario, agentList);
                 executorService.execute(clientsExecutor);

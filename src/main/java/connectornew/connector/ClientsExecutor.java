@@ -1,6 +1,7 @@
 package connectornew.connector;
 
 import connectornew.ClientDescriptor;
+import connectornew.Logger;
 import connectornew.ScenarioPairContainer;
 import connectornew.TransportStack;
 import connectornew.messages.*;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by srg on 06.09.16.
@@ -27,7 +27,7 @@ public class ClientsExecutor implements Runnable {
     TransportStack stack;
     Map<String, Object> agentsScenario;
     Map<String, ClientDescriptor> agentList;
-    Logger logger = Logger.getLogger("CLIENT EXECUTOR");
+    Logger logger = new Logger("CLIENT EXECUTOR");
 
 
     //Constructors
@@ -44,12 +44,16 @@ public class ClientsExecutor implements Runnable {
     public void run() {
         Queue<byte[]> inputMessages = stack.getInputMessages();
         Queue<byte[]> outputMessages = stack.getOutputMessages();
+        logger.setLevel(Level.WARNING);
         System.out.println("IN CLIENT");
         a:
         while (!Thread.currentThread().isInterrupted()) {
             byte[] message = inputMessages.peek();
-            if (message == null) continue;
-            System.out.println("CLIENT POOL SIZE " + agentList.size());
+            if (message == null) {
+                if (!stack.getClientSocket().isConnected()) Thread.currentThread().interrupt();
+                continue;
+            }
+//            System.out.println("CLIENT POOL SIZE " + agentList.size());
             System.out.println("INPUT CLIENT MESSAGE #" + ByteBuffer.wrap(message, 4, 4).getInt() + " " + Hex.encodeHexString(message));
             switch (Header.parseMessageType(message)) {
                 case CTI.MSG_QUERY_AGENT_STATE_REQ: {
@@ -138,7 +142,7 @@ public class ClientsExecutor implements Runnable {
                     AgentDeskSettingsReq agentDeskSettingsReq = AgentDeskSettingsReq.deserializeMessage(message);
                     String agentId = agentDeskSettingsReq.getFloatingFields().get(0).getData();
                     logger.log(Level.INFO, agentDeskSettingsReq.toString());
-//                    executeCommandOfScenario(inputMessages, outputMessages, agentId);
+                    //  executeCommandOfScenario(inputMessages, outputMessages, agentId);
                     break;
                 }
                 case CTI.MSG_CLIENT_EVENT_REPORT_REQ: {
