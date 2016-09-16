@@ -54,7 +54,7 @@ public class ClientsExecutor implements Runnable {
                 continue;
             }
 //            System.out.println("CLIENT POOL SIZE " + agentList.size());
-            System.out.println("INPUT CLIENT MESSAGE #" + ByteBuffer.wrap(message, 4, 4).getInt() + " " + Hex.encodeHexString(message));
+//            System.out.println("INPUT CLIENT MESSAGE #" + ByteBuffer.wrap(message, 4, 4).getInt() + " " + Hex.encodeHexString(message));
             switch (Header.parseMessageType(message)) {
                 case CTI.MSG_QUERY_AGENT_STATE_REQ: {
                     //десериализация сообщения

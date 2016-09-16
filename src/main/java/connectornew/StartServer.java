@@ -80,7 +80,7 @@ public class StartServer {
             ServerSocket ss = new ServerSocket(42027);
             ExecutorService executorService = Executors.newCachedThreadPool();
             TransportStack stack;
-            while (!isStopped) {
+//            while (!isStopped) {
                 logger.log(Level.INFO, "Waiting...");
                 Socket s = ss.accept();
                 s.setSendBufferSize(4096);
@@ -93,10 +93,9 @@ public class StartServer {
                     } catch (InterruptedException e) {
                     }
                 }
-                ClientsExecutor clientsExecutor = new ClientsExecutor(stack, agentsScenario, agentList);
-                executorService.execute(clientsExecutor);
-
-            }
+//                ClientsExecutor clientsExecutor = new ClientsExecutor(stack, agentsScenario, agentList);
+//                executorService.execute(clientsExecutor);
+//            }
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.getMessage());
         }

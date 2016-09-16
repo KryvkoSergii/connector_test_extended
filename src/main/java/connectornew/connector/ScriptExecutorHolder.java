@@ -26,13 +26,13 @@ public class ScriptExecutorHolder {
                 //ожидание получения
                 int tmp = 0;
                 while (inputMessage == null) {
-                    try {
-                        Thread.currentThread().sleep(500);
-                        tmp++;
-                    } catch (Exception e) {
-                    }
+//                    try {
+//                        Thread.currentThread().sleep(500);
+//                        tmp++;
+//                    } catch (Exception e) {
+//                    }
                     inputMessage = inputMessages.poll();
-                    if (tmp > 7) return;
+//                    if (tmp > 7) return;
                 }
                 logger.log(Level.FINEST, "INPUT MESSAGE: " + Hex.encodeHexString(inputMessage));
                 logger.log(Level.FINEST, String.format("Reading time from buffer: %f ms", (double) ((System.nanoTime() - startRead) * 0.000001)));

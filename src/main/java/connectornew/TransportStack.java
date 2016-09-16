@@ -1,8 +1,11 @@
 package connectornew;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import connectornew.messages.CTI;
 import connectornew.messages.agent_events.*;
 import connectornew.messages.miscellaneous.*;
+import connectornew.messages.session_management.CloseConf;
+import connectornew.messages.session_management.CloseReq;
 import connectornew.messages.session_management.OpenConf;
 import connectornew.messages.session_management.OpenReq;
 import org.apache.commons.codec.binary.Hex;
@@ -34,7 +37,7 @@ public class TransportStack extends Thread {
     //Constructors
     public TransportStack(Socket s) {
         this.clientSocket = s;
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.FINEST);
     }
 
     //Methods
@@ -149,7 +152,7 @@ public class TransportStack extends Thread {
         byte[] inputMessage;
         byte[] outputMessage;
         String direction;
-        while (!isInterrupted()) {
+        while (!currentThread().isInterrupted()) {
             try {
                 inputMessage = read(clientSocket, false);
 
@@ -164,8 +167,8 @@ public class TransportStack extends Thread {
                     logger.log(Level.SEVERE, String.format("SENT HEART_BEAT_RESPONSE"));
                 }
 
+                a:
                 if (inputMessage != null) {
-                    inputMessages.add(inputMessage);
                     readCount++;
                     logger.log(Level.FINER, String.format("READ MESSAGE FROM NET TYPE #" + ByteBuffer.wrap(inputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(inputMessage)));
                     direction = " CTI-OS -> CTI ";
@@ -179,7 +182,14 @@ public class TransportStack extends Thread {
                         case CTI.MSG_CLIENT_EVENT_REPORT_REQ: {
                             ClientEventReportReq clientEventReportReq = ClientEventReportReq.deserializeMessage(inputMessage);
                             logger.log(Level.INFO, direction + clientEventReportReq.toString());
-                            break;
+                            ClientEventReportConf clientEventReportConf = new ClientEventReportConf();
+                            clientEventReportConf.setInvokeID(clientEventReportReq.getInvokeID());
+                            try {
+                                outputMessages.add(clientEventReportConf.serializeMessage());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            break a;
                         }
                         case CTI.MSG_QUERY_AGENT_STATE_REQ: {
                             QueryAgentStateReq queryAgentStateReq = QueryAgentStateReq.deserializeMessage(inputMessage);
@@ -201,12 +211,27 @@ public class TransportStack extends Thread {
                             logger.log(Level.INFO, direction + configRequestEvent.toString());
                             break;
                         }
+                        case CTI.MSG_CLOSE_REQ: {
+                            CloseReq closeReq = CloseReq.deserializeMessage(inputMessage);
+                            try {
+                                CloseConf closeConf = new CloseConf(closeReq.getInvokeId());
+                                outputMessages.add(closeConf.serializeMessage());
+                                logger.log(Level.INFO, closeConf.toString());
+                                currentThread().interrupt();
+                                break;
+                            } catch (Exception e) {
+                                logger.log(Level.SEVERE, e.getMessage());
+                            }
+                            break;
+                        }
 
                         default: {
                             logger.log(Level.INFO, "unknown input message #" + code + " MESSAGE: " + Hex.encodeHexString(inputMessage));
                         }
                     }
+                    inputMessages.add(inputMessage);
                 }
+
 
                 outputMessage = outputMessages.poll();
                 if (outputMessage != null) {
@@ -272,6 +297,7 @@ public class TransportStack extends Thread {
                     logger.log(Level.FINER, String.format("WROTE MESSAGE TO NET TYPE #" + ByteBuffer.wrap(outputMessage, 4, 4).getInt() + " : " + Hex.encodeHexString(outputMessage)));
                     writeCount++;
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
                 try {

@@ -66,7 +66,7 @@ public class QueryAgentStateConf extends Header {
     public byte[] serializeMessage() throws Exception {
         try {
             this.setMessageLength(MHDR + FIXED_PART + FloatingField.calculateFloatingPart(floatingFields));
-            this.setMessageType(CTI.MSG_CLIENT_EVENT_REPORT_CONF);
+            this.setMessageType(CTI.MSG_QUERY_AGENT_STATE_CONF);
             ByteBuffer buffer = ByteBuffer.allocate(MHDR + FIXED_PART + FloatingField.calculateFloatingPart(floatingFields))
                     .putInt(this.getMessageLength())
                     .putInt(this.getMessageType())

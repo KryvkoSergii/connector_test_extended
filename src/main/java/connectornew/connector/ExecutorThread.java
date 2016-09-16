@@ -52,8 +52,6 @@ public class ExecutorThread implements Runnable {
             //разделитель сообщений
             if (logger.getLevel().intValue() <= Level.INFO.intValue()) System.out.println("");
 
-            if (stack == null) Thread.currentThread().interrupt();
-
             long initTimeLoadCommand = System.nanoTime();
             ScenarioPairContainer spc = ScenarioPairContainer
                     .getCommand(connectionInitiatingScenario, scriptExecutingStateHolder.getClientState(), 0);
@@ -67,6 +65,8 @@ public class ExecutorThread implements Runnable {
                 isConnectionEstablished = true;
                 break;
             }
+
+            if (stack.isInterrupted()) Thread.currentThread().interrupt();
 
             //
             logger.log(Level.INFO, String.format("State: %s , command type: %s", Arrays.toString(scriptExecutingStateHolder.getClientState()), spc.getMethod()));
